@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FitBuddy - All Users</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .user-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .user-card h2 {
+            margin-top: 0;
+        }
+
+        .details {
+            line-height: 1.8;
+        }
+
+        .plan {
+            background: #f8f8f8;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .nutrition {
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        .empty {
+            background: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .back-button {
+            display: block;
+            text-align: center;
+            margin: 30px 0;
+            text-decoration: none;
+            color: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>👥 FitBuddy Users Dashboard</h1>
+
+        {% if users %}
+
+            {% for user in users %}
+
+                <div class="user-card">
+
+                    <h2>
+                        👤 {{ user.name }}
+                    </h2>
+
+                    <div class="details">
+
+                        <strong>User ID:</strong> {{ user.id }}<br>
+
+                        <strong>Age:</strong> {{ user.age }}<br>
+
+                        <strong>Weight:</strong> {{ user.weight }} kg<br>
+
+                        <strong>Goal:</strong> {{ user.goal }}<br>
+
+                        <strong>Intensity:</strong> {{ user.intensity }}
+
+                    </div>
+
+
+                    <h3>🏋️ Workout Plan</h3>
+
+                    <div class="plan">
+                        {{ user.workout_plan }}
+                    </div>
+
+
+                    <h3>🥗 Nutrition Tip</h3>
+
+                    <div class="nutrition">
+                        {{ user.nutrition_tip }}
+                    </div>
+
+
+                    {% if user.feedback %}
+
+                        <h3>📝 Feedback</h3>
+
+                        <div class="nutrition">
+                            {{ user.feedback }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty">
+                <h2>No users yet.</h2>
+                <p>Generate a fitness plan first.</p>
+            </div>
+
+        {% endif %}
+
+
+        <a class="back-button" href="/">
+            ← Back to FitBuddy
+        </a>
+
+    </div>
+
+</body>
+</html>
