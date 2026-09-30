@@ -1,14 +1,19 @@
 import os
 import time
-
 from dotenv import load_dotenv
-from google import genai
-from google.genai import errors
 
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-client = genai.Client(api_key=API_KEY) if API_KEY else None
+client = None
+
+try:
+    from google import genai
+    from google.genai import errors
+    if API_KEY:
+        client = genai.Client(api_key=API_KEY)
+except Exception:
+    client = None
 
 
 def _fallback_nutrition(goal, age, weight):
@@ -17,18 +22,16 @@ def _fallback_nutrition(goal, age, weight):
 
 For your {goal} goal, focus on balanced meals containing:
 
-- A protein source such as eggs, chicken, fish, beans, paneer, or Greek yogurt.
-- Vegetables and fruit for vitamins and fiber.
-- Whole grains or other practical carbohydrate sources for energy.
-- Healthy fats in moderate portions.
+- A high-quality protein source such as eggs, chicken, fish, beans, paneer, tofu, or Greek yogurt.
+- Vegetables and fresh fruit for vital micronutrients and digestive fiber.
+- Whole grains, sweet potatoes, or oats for sustained energy.
+- Healthy unsaturated fats (olive oil, nuts, avocados) in moderate portions.
 
-Hydration:
-
-Drink water regularly throughout the day and around your workouts.
+Hydration Target:
+Drink at least 2.5 to 3.5 Liters of water daily, especially around training sessions.
 
 Recovery:
-
-Aim for consistent sleep and give your body enough recovery time between harder sessions.
+Aim for 7.5 to 8.5 hours of quality sleep to optimize muscle recovery and hormonal balance.
 
 This is general wellness guidance, not medical advice.
 """
@@ -65,7 +68,7 @@ Requirements:
         try:
 
             response = client.models.generate_content(
-                model="gemini-3.8-flash",
+                model="gemini-2.0-flash",
                 contents=prompt
             )
 
@@ -74,42 +77,12 @@ Requirements:
 
             break
 
-        except (errors.ServerError, errors.ClientError) as e:
-
-            status = getattr(e, "status_code", None)
-
-            if status == 429:
-
-                print(
-                    "Gemini quota reached. "
-                    "Using local nutrition fallback."
-                )
-
-                break
-
-            if attempt == 0:
-
-                print(
-                    "Gemini nutrition request temporarily "
-                    "unavailable. Retrying once..."
-                )
-
-                time.sleep(3)
-
-            else:
-
-                print(
-                    "Gemini nutrition unavailable. "
-                    "Using local fallback."
-                )
-
         except Exception as e:
 
             print(
                 f"Gemini nutrition error: {type(e).__name__}. "
                 "Using local fallback."
             )
-
             break
 
     return _fallback_nutrition(

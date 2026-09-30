@@ -1,14 +1,19 @@
 import os
 import time
-
 from dotenv import load_dotenv
-from google import genai
-from google.genai import errors
 
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-client = genai.Client(api_key=API_KEY) if API_KEY else None
+client = None
+
+try:
+    from google import genai
+    from google.genai import errors
+    if API_KEY:
+        client = genai.Client(api_key=API_KEY)
+except Exception:
+    client = None
 
 
 def _fallback_workout(name, age, weight, goal, intensity):
@@ -23,10 +28,10 @@ Intensity: {intensity}
 
 DAY 1 - FULL BODY
 
-Warm-up: 5-10 minutes walking and mobility
+Warm-up: 5-10 minutes walking and dynamic mobility
 
-- Bodyweight Squats: 3 x 10
-- Wall/Incline Push-ups: 3 x 8
+- Bodyweight / Goblet Squats: 3 x 12
+- Wall/Incline Push-ups: 3 x 10
 - Glute Bridges: 3 x 12
 - Bird Dog: 2 x 10 each side
 
@@ -37,61 +42,61 @@ DAY 2 - CARDIO + CORE
 
 Warm-up: 5 minutes easy movement
 
-- Brisk Walk: 20 minutes
+- Brisk Walk / Jog: 20-25 minutes
 - Dead Bug: 3 x 8 each side
-- Plank: 3 x 20 seconds
+- Forearm Plank: 3 x 25 seconds
 
 Cooldown: 5 minutes stretching
 
 
-DAY 3 - RECOVERY
+DAY 3 - RECOVERY & MOBILITY
 
 - Easy walk: 15-20 minutes
 - Gentle full-body stretching: 10 minutes
 
-Focus on hydration and recovery.
+Focus on hydration and restorative sleep.
 
 
-DAY 4 - FULL BODY
+DAY 4 - FULL BODY STRENGTH
 
 Warm-up: 5-10 minutes
 
-- Reverse Lunges: 3 x 8 each leg
-- Incline Push-ups: 3 x 8
-- Hip Hinge/Good Morning: 3 x 10
-- Shoulder Taps: 2 x 10 each side
+- Reverse Lunges: 3 x 10 each leg
+- Incline Push-ups: 3 x 10
+- Hip Hinge / Good Morning: 3 x 12
+- Shoulder Taps: 2 x 12 each side
 
 Cooldown: 5 minutes
 
 
 DAY 5 - CARDIO + CORE
 
-- Brisk Walk or easy cycling: 20-25 minutes
-- Glute Bridge: 3 x 12
-- Side Plank: 2 x 15-20 seconds each side
+- Brisk Walk or cycling: 20-30 minutes
+- Glute Bridge: 3 x 15
+- Side Plank: 2 x 20 seconds each side
 
 Cooldown: 5 minutes
 
 
-DAY 6 - LIGHT STRENGTH
+DAY 6 - FUNCTIONAL STRENGTH
 
-- Chair Squats: 3 x 10
-- Wall Push-ups: 3 x 10
-- Calf Raises: 3 x 12
-- Standing Knee Raises: 2 x 10 each side
+- Chair / Air Squats: 3 x 12
+- Wall Push-ups / Dips: 3 x 12
+- Standing Calf Raises: 3 x 15
+- Standing Knee Raises: 2 x 12 each side
 
 Cooldown: 5 minutes
 
 
 DAY 7 - REST / ACTIVE RECOVERY
 
-- Easy walking: 15-20 minutes if comfortable
-- Gentle stretching: 10 minutes
+- Relaxing outdoor walk: 15-20 minutes
+- Gentle yoga / stretching: 10 minutes
 
 
-SAFETY
+SAFETY & TIPS
 
-Start gradually, use good form, stay hydrated, and stop if you experience pain, dizziness, or unusual symptoms.
+Start gradually, prioritize good form, stay hydrated, and adjust intensity as needed.
 """
 
 
@@ -132,7 +137,7 @@ Requirements:
         try:
 
             response = client.models.generate_content(
-                model="gemini-3.8-flash",
+                model="gemini-2.0-flash",
                 contents=prompt
             )
 
@@ -140,30 +145,6 @@ Requirements:
                 return response.text
 
             break
-
-        except (errors.ServerError, errors.ClientError) as e:
-
-            status = getattr(e, "status_code", None)
-
-            if status == 429:
-                print(
-                    "Gemini quota reached. "
-                    "Using local workout fallback."
-                )
-                break
-
-            if attempt == 0:
-                print(
-                    "Gemini temporarily unavailable. "
-                    "Retrying once..."
-                )
-                time.sleep(3)
-
-            else:
-                print(
-                    "Gemini unavailable. "
-                    "Using local workout fallback."
-                )
 
         except Exception as e:
 

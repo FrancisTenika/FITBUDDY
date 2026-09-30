@@ -1,14 +1,19 @@
 import os
 import time
-
 from dotenv import load_dotenv
-from google import genai
-from google.genai import errors
 
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-client = genai.Client(api_key=API_KEY) if API_KEY else None
+client = None
+
+try:
+    from google import genai
+    from google.genai import errors
+    if API_KEY:
+        client = genai.Client(api_key=API_KEY)
+except Exception:
+    client = None
 
 
 def _fallback_updated_plan(original_plan, feedback):
@@ -180,7 +185,7 @@ Requirements:
         try:
 
             response = client.models.generate_content(
-                model="gemini-3.8-flash",
+                model="gemini-2.0-flash",
                 contents=prompt
             )
 
@@ -189,42 +194,12 @@ Requirements:
 
             break
 
-        except (errors.ServerError, errors.ClientError) as e:
-
-            status = getattr(e, "status_code", None)
-
-            if status == 429:
-
-                print(
-                    "Gemini quota reached. "
-                    "Using local updated-plan fallback."
-                )
-
-                break
-
-            if attempt == 0:
-
-                print(
-                    "Gemini feedback request temporarily "
-                    "unavailable. Retrying once..."
-                )
-
-                time.sleep(3)
-
-            else:
-
-                print(
-                    "Gemini feedback request failed. "
-                    "Using local fallback."
-                )
-
         except Exception as e:
 
             print(
                 f"Gemini feedback error: {type(e).__name__}. "
                 "Using local fallback."
             )
-
             break
 
     return _fallback_updated_plan(
