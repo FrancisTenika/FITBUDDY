@@ -20,8 +20,6 @@ Weight: {weight} kg
 Goal: {goal}
 Intensity: {intensity}
 
-Note: Gemini is temporarily unavailable or the API quota has been reached.
-FitBuddy has provided a safe local plan so the website continues working.
 
 DAY 1 - FULL BODY
 
