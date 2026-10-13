@@ -1,0 +1,135 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPAa5bSaSkYcqPyT1PrTugS",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/FrancisTenika/FITBUDDY/blob/main/SECTION%20A\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 5,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "wRIl6U8-tAGo",
+        "outputId": "fdabd59a-70e5-4e62-a866-a786b8d5069b"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Knowledge base created successfully!\n",
+            "Total documents: 3\n",
+            "Retrieved: Users can reset their password using the Forgot Password option on the login page.\n",
+            "Source: Sample PDF, page 3\n",
+            "Retrieved: Customers can check their order status through the order tracking page.\n",
+            "Source: Sample PDF, page 5\n",
+            "Answer: Open the login page, select 'Forgot Password,' and follow the instructions to create a new password.\n",
+            "Source: Sample PDF, page 3, Sample PDF, page 5\n"
+          ]
+        }
+      ],
+      "source": [
+        "documents = [\n",
+        "    {\n",
+        "        \"source\": \"Sample PDF, page 3\",\n",
+        "        \"text\": \"Users can reset their password using \"\n",
+        "                \"the Forgot Password option on the login page.\"\n",
+        "    },\n",
+        "    {\n",
+        "        \"source\": \"Sample PDF, page 4\",\n",
+        "        \"text\": \"Users should contact the support team \"\n",
+        "                \"to verify a duplicate charge.\"\n",
+        "    },\n",
+        "    {\n",
+        "        \"source\": \"Sample PDF, page 5\",\n",
+        "        \"text\": \"Customers can check their order status \"\n",
+        "                \"through the order tracking page.\"\n",
+        "    }\n",
+        "]\n",
+        "\n",
+        "print(\"Knowledge base created successfully!\")\n",
+        "print(\"Total documents:\", len(documents))\n",
+        "\n",
+        "def retrieve_context(query):\n",
+        "    query_words = set(query.lower().split())\n",
+        "\n",
+        "    results = []\n",
+        "\n",
+        "    for doc in documents:\n",
+        "        text = doc[\"text\"].lower()\n",
+        "        score = sum(\n",
+        "            1 for word in query_words\n",
+        "            if word in text\n",
+        "        )\n",
+        "\n",
+        "        if score > 0:\n",
+        "            results.append((score, doc))\n",
+        "\n",
+        "    results.sort(key=lambda x: x[0], reverse=True)\n",
+        "\n",
+        "    return [doc for score, doc in results[:2]]\n",
+        "\n",
+        "\n",
+        "query = \"How can I reset my password?\"\n",
+        "context = retrieve_context(query)\n",
+        "\n",
+        "for doc in context:\n",
+        "    print(\"Retrieved:\", doc[\"text\"])\n",
+        "    print(\"Source:\", doc[\"source\"])\n",
+        "\n",
+        "\n",
+        "def answer_query(user_query):\n",
+        "    context = retrieve_context(user_query)\n",
+        "\n",
+        "    if not context:\n",
+        "        return \"Information not found in the documents.\"\n",
+        "\n",
+        "    text = \" \".join(doc[\"text\"] for doc in context)\n",
+        "    sources = \", \".join(doc[\"source\"] for doc in context)\n",
+        "\n",
+        "    if \"password\" in user_query.lower():\n",
+        "        answer = (\n",
+        "            \"Open the login page, select \"\n",
+        "            \"'Forgot Password,' and follow the instructions \"\n",
+        "            \"to create a new password.\"\n",
+        "        )\n",
+        "    elif \"charge\" in user_query.lower():\n",
+        "        answer = (\n",
+        "            \"Contact the support team to verify \"\n",
+        "            \"the duplicate charge.\"\n",
+        "        )\n",
+        "    else:\n",
+        "        answer = text\n",
+        "\n",
+        "    return f\"Answer: {answer}\\nSource: {sources}\"\n",
+        "\n",
+        "\n",
+        "print(answer_query(\"How can I reset my password?\"))\n"
+      ]
+    }
+  ]
+}
